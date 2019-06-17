@@ -1,4 +1,4 @@
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+
 
 public class Board extends JPanel implements KeyListener{
 
@@ -22,7 +23,7 @@ public class Board extends JPanel implements KeyListener{
 
 	private Shape[] shapes = new Shape[7];
 
-	private Shape currentShape;
+	public Shape currentShape;
 
 	private Timer timer;
 
@@ -30,9 +31,11 @@ public class Board extends JPanel implements KeyListener{
 
 	private final int delay = 1000/FPS;
 
-	public static int pontuacao = 0;
+	public int pontuacao = 0;
 
-	private boolean gameOver = false;
+	public boolean gameOver = false;
+
+	public boolean trigger = false;
 
 	public Board(JLabel label){
 
@@ -93,11 +96,9 @@ public class Board extends JPanel implements KeyListener{
 		if(!gameOver) {
 			currentShape.update(label);
 		}
-		else {
+		else
 			timer.stop();
-			JOptionPane.showMessageDialog(null, "O Jogador X perdeu o jogo. \n" +
-					"O Jogador Y ganhou o jogo com Y pontos.");
-		}
+
 	}
 
 
@@ -152,14 +153,26 @@ public class Board extends JPanel implements KeyListener{
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if(e.getKeyCode() == KeyEvent.VK_LEFT)
-			currentShape.setDeltaX(-1);
-		if(e.getKeyCode() == KeyEvent.VK_RIGHT)
-			currentShape.setDeltaX(1);
-		if(e.getKeyCode() == KeyEvent.VK_DOWN)
-			currentShape.speedDown();
-		if(e.getKeyCode() == KeyEvent.VK_UP)
-			currentShape.rotate();
+		if(!trigger) {
+			if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+				currentShape.setDeltaX(-1);
+				Connection.triggerAction(1);
+			}
+			if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+				currentShape.setDeltaX(1);
+				Connection.triggerAction(2);
+			}
+			if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+				currentShape.speedDown();
+				Connection.triggerAction(3);
+			}
+			if (e.getKeyCode() == KeyEvent.VK_UP) {
+				currentShape.rotate();
+				Connection.triggerAction(4);
+			}
+			if (e.getKeyCode() == KeyEvent.VK_SPACE)
+				System.out.println("-- ENVIA PRO SERVIDOR O PODER");
+		}
 	}
 
 	@Override

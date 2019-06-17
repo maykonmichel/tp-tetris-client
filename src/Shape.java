@@ -115,7 +115,7 @@ public class Shape {
 				height --;
 			else
 			{
-				Board.pontuacao+=50;
+				board.pontuacao+=50;
 			}
 		}
 	}
