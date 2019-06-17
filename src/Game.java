@@ -9,6 +9,7 @@ class Game {
 
 
     Game(String player, String opponent) {
+        status = Status.RUNNING;
         System.out.println(player + " x " + opponent);
         JFrame window = new JFrame("Tetris game - " + player + " x " + opponent);
         window.setSize(WIDTH, HEIGHT);

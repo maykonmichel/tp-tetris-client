@@ -39,7 +39,6 @@ class Menu extends JFrame {
                     connect.setEnabled(true);
                     status.setText("Servidor não disponível.");
                 }
-//                setVisible(false);
             });
             panel.add(connect);
         }
@@ -70,6 +69,7 @@ class Menu extends JFrame {
             name.setEnabled(true);
             connect.setEnabled(true);
             status.setText("");
+            if(Game.status == Game.Status.RUNNING) setVisible(false);
         }
     }
 }

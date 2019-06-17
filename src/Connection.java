@@ -12,8 +12,11 @@ public class Connection implements Runnable {
     private static PrintStream printStream;
     private static boolean running;
 
+    private String name;
+
     Connection(String name) throws IOException {
         try {
+            this.name = name;
             socket = new Socket(HOST, PORT);
             scanner = new Scanner(socket.getInputStream());
             printStream = new PrintStream(socket.getOutputStream());
@@ -48,30 +51,35 @@ public class Connection implements Runnable {
         running = true;
         while (running) {
             try {
-                int action = scanner.nextInt();
-                if(action == Action.STOP.getValue()) {
-                    Game.status = Game.Status.values()[scanner.nextInt()];
+                Action action = Action.fromInteger(scanner.nextInt());
+                switch (action) {
+                    case KEY_PRESSED:
+                    case STOP:
+                    case OPPONENT_MATCHED:
+                        new Game(name, scanner.nextLine());
+                        break;
                 }
             } catch (Exception e) {
-                System.out.println(e.getMessage());
-                disconnect();
+//                disconnect();
             }
         }
     }
 
     private enum Action {
-        GAME_OVER(5),
-        STOP(6),
-        WAITING_OPPONENT(7);
+        KEY_PRESSED,
+        STOP,
+        OPPONENT_MATCHED;
 
-        private int value;
-
-        Action(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
+        public static Action fromInteger(int value) {
+            switch(value) {
+                default:
+                case 0:
+                    return KEY_PRESSED;
+                case 1:
+                    return STOP;
+                case 2:
+                    return OPPONENT_MATCHED;
+            }
         }
     }
 }
