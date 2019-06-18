@@ -29,8 +29,13 @@ public class Connection implements Runnable {
         }
     }
 
-    static void triggerAction(int action) {
-        printStream.println(action);
+    static void getNextShapeIndex() {
+        printStream.println(Action.GET_NEXT_SHAPE);
+    }
+
+    static void keyPressed(int direction) {
+        printStream.println(Action.KEY_PRESSED);
+        printStream.println(direction);
     }
 
     private void disconnect() {
@@ -51,35 +56,51 @@ public class Connection implements Runnable {
         running = true;
         while (running) {
             try {
-                Action action = Action.fromInteger(scanner.nextInt());
+                String action = "";
+                while(action.isEmpty()) action = scanner.nextLine();
                 switch (action) {
-                    case KEY_PRESSED:
-                    case STOP:
-                    case OPPONENT_MATCHED:
-                        new Game(name, scanner.nextLine());
+                    case "NEXT_SHAPE":
+                        Game.player.setNextShapeIndex(scanner.nextInt());
+                        break;
+                    case "OPPONENT_NEXT_SHAPE":
+                        Game.opponent.setNextShapeIndex(scanner.nextInt());
+                        break;
+                    case "KEY_PRESSED":
+                        switch (scanner.nextInt()) {
+                            case 1:
+                                Game.opponent.currentShape.setDeltaX(-1);
+                                break;
+                            case 2:
+                                Game.opponent.currentShape.setDeltaX(1);
+                                break;
+                            case 3:
+                                Game.opponent.currentShape.speedDown();
+                                break;
+                            case 4:
+                                Game.opponent.currentShape.rotate();
+                                break;
+                            case 5:
+                                Game.opponent.currentShape.normalSpeed();
+                                break;
+                        }
+                        break;
+                    case "STOP":
+                        break;
+                    case "OPPONENT_MATCHED":
+                        new Game(name, scanner.nextLine(), scanner.nextInt(), scanner.nextInt());
+                        break;
+                    default:
+                        System.out.println(action + " not recognized");
                         break;
                 }
             } catch (Exception e) {
-//                disconnect();
+                System.out.println("Something went wrong: " + e.getMessage());
             }
         }
     }
 
     private enum Action {
-        KEY_PRESSED,
-        STOP,
-        OPPONENT_MATCHED;
-
-        public static Action fromInteger(int value) {
-            switch(value) {
-                default:
-                case 0:
-                    return KEY_PRESSED;
-                case 1:
-                    return STOP;
-                case 2:
-                    return OPPONENT_MATCHED;
-            }
-        }
+        GET_NEXT_SHAPE,
+        KEY_PRESSED
     }
 }

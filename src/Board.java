@@ -1,27 +1,24 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-
-public class Board extends JPanel implements KeyListener {
-
+public class Board extends JPanel {
     private final int blockSize = 30;
     private final int boardWidth = 10, boardHeight = 19;
     Shape currentShape;
     int pontuacao = 0;
     boolean gameOver = false;
     boolean trigger = false;
+    Shape[] shapes = new Shape[7];
     private BufferedImage blocks;
     private int[][] board = new int[boardHeight][boardWidth];
-    private Shape[] shapes = new Shape[7];
     private Timer timer;
+    private int nextShape;
 
-    Board(JLabel label) {
+    Board(JLabel label, int firstShape) {
         try {
             blocks = ImageIO.read(new File("tiles.png"));
         } catch (IOException e) {
@@ -73,8 +70,9 @@ public class Board extends JPanel implements KeyListener {
                 {1, 1}   // O-Shape
         }, this, 7);
 
-        setNextShape(label);
+        nextShape = firstShape;
 
+        setNextShape(label);
     }
 
     private void update(JLabel label) {
@@ -84,7 +82,6 @@ public class Board extends JPanel implements KeyListener {
             timer.stop();
 
     }
-
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -107,13 +104,20 @@ public class Board extends JPanel implements KeyListener {
 
     }
 
+    private void getNextShapeIndex() {
+        Connection.getNextShapeIndex();
+    }
+
+    void setNextShapeIndex(int index) {
+        nextShape = index;
+    }
+
     void setNextShape(JLabel label) {
         label.setText("Pontuação: " + pontuacao);
         pontuacao += 5;
-        int index = (int) (Math.random() * shapes.length);
 
-        currentShape = new Shape(shapes[index].getBlock(), shapes[index].getCoords(),
-                this, shapes[index].getColor());
+        currentShape = new Shape(shapes[nextShape].getBlock(), shapes[nextShape].getCoords(),
+                this, shapes[nextShape].getColor());
 
         for (int row = 0; row < currentShape.getCoords().length; row++)
             for (int col = 0; col < currentShape.getCoords()[row].length; col++)
@@ -121,6 +125,7 @@ public class Board extends JPanel implements KeyListener {
                     if (board[row][col + 3] != 0)
                         gameOver = true;
 
+        getNextShapeIndex();
     }
 
 
@@ -130,39 +135,5 @@ public class Board extends JPanel implements KeyListener {
 
     int[][] getBoard() {
         return board;
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        if (!trigger) {
-            if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                currentShape.setDeltaX(-1);
-                Connection.triggerAction(1);
-            }
-            if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                currentShape.setDeltaX(1);
-                Connection.triggerAction(2);
-            }
-            if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                currentShape.speedDown();
-                Connection.triggerAction(3);
-            }
-            if (e.getKeyCode() == KeyEvent.VK_UP) {
-                currentShape.rotate();
-                Connection.triggerAction(4);
-            }
-            if (e.getKeyCode() == KeyEvent.VK_SPACE)
-                System.out.println("-- ENVIA PRO SERVIDOR O PODER");
-        }
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_DOWN)
-            currentShape.normalSpeed();
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
     }
 }
